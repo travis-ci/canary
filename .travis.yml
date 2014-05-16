@@ -3,3 +3,5 @@
 :rvm: '2.1'
 :script: echo Canary away!
 :install: /bin/true
+:notifications:
+  :email: false
