@@ -1,4 +1,6 @@
 require 'gh'
+require 'yaml'
+require 'base64'
 
 class CreateCommit
   attr_reader :repository, :gh
@@ -9,26 +11,34 @@ class CreateCommit
   end
 
   def run(message)
-    gh.post("repos/#{repository}/git/commits", commit(message))
+    commit = gh.put("repos/#{repository}/contents/.travis.yml", commit(message))
+    puts "Created commit #{commit['commit']['sha']}"
   rescue GH::Error => e
     puts e.message
   end
 
   def commit(message)
     {
-      parents: [parent],
-      tree: tree(parent),
-      message: message
+      message: message,
+      content: Base64.strict_encode64(travis_yaml),
+      branch: 'canary',
+      sha: parent('canary')
     }
   end
 
-  def tree(sha)
-    gh.get("repos/#{repository}/git/commits/#{sha}")['commit']['tree']
-  rescue GH::Error => e
-    puts e.message
+  def travis_yaml
+    YAML.dump({
+      language: 'ruby',
+      rvm: '2.1',
+      script: "echo Canary away!",
+      install: '/bin/true',
+      notifications: {
+        email: false
+      }
+    })
   end
 
-  def parent
-    gh.get("repos/#{repository}/git/commits?sha=master").first['sha']
+  def parent(branch)
+    gh["repos/#{repository}/contents/.travis.yml?ref=#{branch}"]['sha']
   end
 end

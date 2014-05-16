@@ -34,6 +34,7 @@ GEM
     pusher-client (0.6.0)
       json
       websocket (~> 1.0)
+    rake (0.9.6)
     slop (3.5.0)
     travis (1.6.11)
       addressable (~> 2.3)
@@ -55,4 +56,5 @@ PLATFORMS
 
 DEPENDENCIES
   gh
+  rake
   travis
